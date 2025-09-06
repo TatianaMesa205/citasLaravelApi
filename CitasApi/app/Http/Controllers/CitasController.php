@@ -11,7 +11,7 @@ class CitasController extends Controller
     public function index(){
         $citas = Citas::all();
 
-        return response()->json($citas);
+        return response()->json($citas);    
     }
 
     public function store(Request $request){

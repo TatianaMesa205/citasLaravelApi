@@ -1,61 +1,190 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📌 Proyecto: API de Agendamiento de Citas Médicas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST desarrollada en **Laravel** para gestionar un sistema de citas médicas.  
+Incluye autenticación con **Sanctum**, gestión de pacientes, médicos, consultorios, especialidades y consultas adicionales.  
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Tecnologías usadas
+- **Laravel 10+**
+- **Sanctum** (autenticación por tokens)
+- **MySQL** (base de datos relacional)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📂 Estructura de la base de datos (tablas principales)
 
-## Learning Laravel
+- **pacientes** → información de los pacientes (nombre, apellido, documento, teléfono, email, fecha de nacimiento, dirección).
+- **medicos** → datos de los médicos y su especialidad.
+- **especialidades** → lista de especialidades médicas.
+- **consultorios** → número y ubicación del consultorio.
+- **citas** → agenda de citas médicas, relacionada con pacientes, médicos y consultorios.
+- **users** → tabla de usuarios para login y autenticación con Sanctum.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🔑 Autenticación
+Todos los endpoints protegidos usan **Bearer Token** (Laravel Sanctum).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Ejemplo de header:**
 
-## Laravel Sponsors
+- http
+Authorization: Bearer <token>
+Content-Type: application/json
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
+## 📌 Endpoints de Autenticación (AuthController)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Método | Ruta          | Descripción                              |
+| ------ | ------------- | ---------------------------------------- |
+| POST   | /api/register | Registrar un nuevo usuario (con rol)     |
+| POST   | /api/login    | Iniciar sesión y obtener token JWT       |
+| POST   | /api/logout   | Cerrar sesión e invalidar token          |
+| GET    | /api/me       | Obtener información del usuario logueado |
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+## 🌐 Endpoints principales
+### 🔹Citas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Método | Ruta                      | Descripción             |
+| ------ | ------------------------- | ----------------------- |
+| GET    | /api/listarCitas          | Lista todas las citas   |
+| POST   | /api/crearCitas           | Crear una nueva cita    |
+| GET    | /api/citas/{id}           | Ver detalle de una cita |
+| PUT    | /api/actualizarCitas/{id} | Actualizar una cita     |
+| DELETE | /api/eliminarCitas/{id}   | Eliminar una cita       |
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 🔹Ejemplo - Crear cita
 
-## License
+- POST /api/crearCitas
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 🔹Body
+
+{ <br>
+  "id_pacientes": 1, <br>
+  "id_medicos": 2, <br>
+  "id_consultorios": 1,<br>
+  "fecha": "2025-09-10", <br>
+  "hora": "10:30", <br>
+  "estado": "Confirmada", <br>
+  "motivo": "Chequeo general"<br>
+}
+
+### 🔹Respuesta 201
+
+{ <br>
+  "id": 12, <br>
+  "id_pacientes": 1, <br>
+  "id_medicos": 2, <br>
+  "id_consultorios": 1, <br>
+  "fecha": "2025-09-10", <br>
+  "hora": "10:30", <br>
+  "estado": "Confirmada", <br>
+  "motivo": "Chequeo general", <br>
+  "created_at": "2025-09-04T17:00:00Z", <br>
+  "updated_at": "2025-09-04T17:00:00Z" <br>
+}
+
+### 🔹Consultorios
+| Método | Ruta                             | Descripción                  |
+| ------ | -------------------------------- | ---------------------------- |
+| GET    | /api/listarConsultorios          | Lista todos los consultorios |
+| POST   | /api/crearConsultorios           | Crear consultorio            |
+| GET    | /api/consultorios/{id}           | Ver consultorio por id       |
+| PUT    | /api/actualizarConsultorios/{id} | Actualizar consultorio       |
+| DELETE | /api/eliminarConsultorios/{id}   | Eliminar consultorio         |
+
+### 🔹Especialidades
+
+| Método | Ruta                               | Descripción                    |
+| ------ | ---------------------------------- | ------------------------------ |
+| GET    | /api/listarEspecialidades          | Lista todas las especialidades |
+| POST   | /api/crearEspecialidades           | Crear especialidad             |
+| GET    | /api/especialidades/{id}           | Ver especialidad por id        |
+| PUT    | /api/actualizarEspecialidades/{id} | Actualizar especialidad        |
+| DELETE | /api/eliminarEspecialidades/{id}   | Eliminar especialidad          |
+
+
+### 🔹Médicos
+
+| Método | Ruta                        | Descripción             |
+| ------ | --------------------------- | ----------------------- |
+| GET    | /api/listarMedicos          | Lista todos los médicos |
+| POST   | /api/crearMedicos           | Crear médico            |
+| GET    | /api/medicos/{id}           | Ver médico por id       |
+| PUT    | /api/actualizarMedicos/{id} | Actualizar médico       |
+| DELETE | /api/eliminarMedicos/{id}   | Eliminar médico         |
+
+
+### 🔹Pacientes
+| Método | Ruta                          | Descripción               |
+| ------ | ----------------------------- | ------------------------- |
+| GET    | /api/listarPacientes          | Lista todos los pacientes |
+| POST   | /api/crearPacientes           | Crear paciente            |
+| GET    | /api/pacientes/{id}           | Ver paciente por id       |
+| PUT    | /api/actualizarPacientes/{id} | Actualizar paciente       |
+| DELETE | /api/eliminarPacientes/{id}   | Eliminar paciente         |
+
+------------
+
+## 📊 Consultas adicionales
+
+- `GET /api/listarHotmail →` Pacientes con correo @hotmail
+
+- `GET /api/listar20Anios →` Médicos menores de 20 años
+
+- `GET /api/listarConsultoriosSegundoP →` Consultorios en segundo piso
+
+- `GET /api/listarMenores →` Pacientes menores de edad
+
+- `GET /api/listarCitasActivas →` Citas con estado Confirmada
+
+- `GET /api/listarApellidosM →` Pacientes cuyo apellido empieza con "M"
+
+- `GET /api/listarCitasGripa →` Citas con motivo que contenga "Gripa"
+
+- `GET /api/listarMedicosCardiologia →` Médicos de especialidad "Cardiología"
+
+- `GET /api/listarPacientesBogota →` Pacientes que viven en Bogotá
+
+- `GET /api/listarCitasPacientes30 →` Citas de pacientes mayores de 30 años
+
+
+------
+## ⚙️ Instalación y ejecución
+
+### Clonar el repositorio:
+
+- git clone https://github.com/usuario/proyecto-citas.git
+
+
+### Instalar dependencias:
+
+- composer install
+
+- Configurar variables de entorno (.env):
+
+- DB_DATABASE=citas <br>
+DB_USERNAME=root <br>
+DB_PASSWORD= <br>
+
+
+### Ejecutar migraciones:
+
+- php artisan migrate
+
+
+### Iniciar servidor:
+
+- php artisan serve
+
+----
+## ✅ Notas
+
+- Usar Bearer Token en los endpoints protegidos, esta verificación se realizó por medio de postman.
+
+- Los controladores implementan validación con Validator para evitar datos inválidos.
+
+- La API devuelve respuestas en formato JSON con mensajes de error claros.

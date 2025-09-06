@@ -5,12 +5,56 @@ use App\Http\Controllers\ConsultoriosController;
 use App\Http\Controllers\EspecialidadesController;
 use App\Http\Controllers\MedicosController;
 use App\Http\Controllers\PacientesController;
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+
+Route::post('registrar', [AuthController::class, 'registrar']);
+Route::post('login', [AuthController::class, 'login']);
+
+// 🔹 Middleware principal de Sanctum
+Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get('me', [AuthController::class, 'me']);
+    Route::post('logout', [AuthController::class, 'logout']);
+
+    // 🔹 Solo admin
+    Route::group(['middleware' => RoleMiddleware::class . ':admin'], function () {
+        Route::post('crearPacientes', [PacientesController::class, 'store']);
+        Route::post('crearMedicos', [MedicosController::class, 'store']);
+        Route::post('crearEspecialidades', [EspecialidadesController::class, 'store']);
+        Route::post('crearConsultorios', [ConsultoriosController::class, 'store']);
+        Route::get('listarPacientes', [PacientesController::class, 'index']);
+        Route::delete('eliminarPacientes/{id}', [PacientesController::class, 'destroy']);
+        Route::delete('eliminarMedicos/{id}', [MedicosController::class, 'destroy']);
+    });
+
+    // 🔹 Admin o paciente
+    Route::middleware(['role:admin,paciente'])->group(function () {
+        Route::get('listarMedicos', [MedicosController::class, 'index']);
+        Route::get('listarEspecialidades', [EspecialidadesController::class, 'index']);
+        Route::get('listarConsultorios', [ConsultoriosController::class, 'index']);
+        Route::get('listarCitas', [CitasController::class, 'index']);
+        Route::post('crearCitas', [CitasController::class, 'store']);
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 Route::get('listarCitas', [CitasController::class, 'index']);
 Route::post('crearCitas', [CitasController::class, 'store']);
