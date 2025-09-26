@@ -15,13 +15,13 @@ class Citas extends Model
         'estado', // Por ejemplo: 'pendiente', 'confirmada', 'cancelada'
         'motivo',
     ];
-    public function pacientes(){
+    public function paciente(){
         return $this->belongsTo(Pacientes::class, 'id_pacientes', 'id'); // belongsTo significa de muchos a uno
     }
-    public function medicos(){
+    public function medico(){
         return $this->belongsTo(Medicos::class, 'id_medicos', 'id'); // belongsTo significa de muchos a uno
     }
-    public function consultorios(){
+    public function consultorio(){
         return $this->belongsTo(Consultorios::class, 'id_consultorios', 'id'); // belongsTo significa de muchos a uno
     }
 }

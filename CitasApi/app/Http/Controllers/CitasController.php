@@ -3,19 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\Citas;
+use App\Models\Pacientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class CitasController extends Controller
 {
     public function index(){
-        $citas = Citas::all();
-
-        return response()->json($citas);    
+        $citas = Citas::with(['medico', 'consultorio', 'paciente'])->get(); // Lleva datos 
+        return response()->json($citas);
     }
 
-    public function store(Request $request){
-        $validador = Validator::make($request->all(),[
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->rol === 'paciente') {
+            // Buscar el paciente por email del usuario autenticado
+            $paciente = \App\Models\Pacientes::where("email", $user->email)->first();
+
+            if (!$paciente) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "No estás registrado como paciente",
+                    "data" => []
+                ], 404);
+            }
+
+            // Validamos lo demás (no pedimos id_pacientes porque lo asignamos nosotros)
+            $validador = Validator::make($request->all(), [
+                'id_medicos' => 'required|exists:medicos,id',
+                'id_consultorios' => 'required|exists:consultorios,id',
+                'fecha' => 'required|date',
+                'hora' => 'required|string|max:255',
+                'estado' => 'required|string|max:255',
+                'motivo' => 'nullable|string|max:255',
+            ]);
+
+            if ($validador->fails()) {
+                return response()->json($validador->errors(), 422);
+            }
+
+            // Creamos la cita vinculada al paciente logueado
+            $cita = new \App\Models\Citas();
+            $cita->id_pacientes = $paciente->id;
+            $cita->id_medicos = $request->id_medicos;
+            $cita->id_consultorios = $request->id_consultorios;
+            $cita->fecha = $request->fecha;
+            $cita->hora = $request->hora;
+            $cita->estado = $request->estado;
+            $cita->motivo = $request->motivo;
+            $cita->save();
+
+            return response()->json($cita, 201);
+        }
+
+        // Si es admin, se valida todo normalmente
+        $validador = Validator::make($request->all(), [
             'id_pacientes' => 'required|exists:pacientes,id',
             'id_medicos' => 'required|exists:medicos,id',
             'id_consultorios' => 'required|exists:consultorios,id',
@@ -29,9 +73,10 @@ class CitasController extends Controller
             return response()->json($validador->errors(), 422);
         }
 
-        $cita = Citas::create($request->all());
+        $cita = \App\Models\Citas::create($request->all());
         return response()->json($cita, 201);
     }
+
 
     public function show(string $id){
         $cita = Citas::find($id);
@@ -108,6 +153,32 @@ class CitasController extends Controller
                     ->get();
 
         return response()->json($citas);
+    }
+
+    public function listarMisCitas(Request $request)
+    {
+        $user = $request->user(); // del token
+        $paciente = \App\Models\Pacientes::where("email", $user->email)->first();
+
+        if (!$paciente) {
+            return response()->json([
+                "success" => false,
+                "message" => "no estás registrado como paciente",
+                "data" => [],
+                "paciente_id" => null
+            ], 404);
+        }
+
+        $citas = \App\Models\Citas::with(["medico", "consultorio"])
+            ->where("id_pacientes", $paciente->id)
+            ->get();
+
+        return response()->json([
+            "success" => true,
+            "message" => "citas obtenidas correctamente",
+            "data" => $citas,
+            "paciente_id" => $paciente->id // 👈 devolvemos id del paciente
+        ]);
     }
 
 

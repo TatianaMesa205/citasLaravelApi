@@ -9,12 +9,9 @@ use Illuminate\Support\Facades\Validator;
 class MedicosController extends Controller
 {
     public function index(){
-        $medicos = Medicos::all();
-
+        $medicos = Medicos::with('especialidades:id,nombre_e')->get();
         return response()->json($medicos);
     }
-
-
 
 
     public function store(Request $request){
