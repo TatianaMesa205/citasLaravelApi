@@ -47,10 +47,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('actualizarMedicos/{id}', [MedicosController::class, 'update']);
         Route::delete('eliminarMedicos/{id}', [MedicosController::class, 'destroy']);
 
+        Route::get('contadorMedicos', [MedicosController::class, 'contadorMedicos']);
+
         Route::get('listarPacientes', [PacientesController::class, 'index']);
         Route::get('pacientes/{id}', [PacientesController::class, 'show']);
         Route::put('actualizarPacientes/{id}', [PacientesController::class, 'update']);
         Route::delete('eliminarPacientes/{id}', [PacientesController::class, 'destroy']);
+
+        Route::get('contadorPacientes', [PacientesController::class, 'contadorPacientes']);
+
     });
 
     // 🔹 Admin o paciente

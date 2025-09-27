@@ -119,6 +119,16 @@ class PacientesController extends Controller
         return response()->json($pacientes);
     }
 
+    public function contadorPacientes()
+    {
+        $cantidad = Pacientes::count();
+
+        return response()->json([
+            'cantidad_pacientes' => $cantidad
+        ]);
+    }
+
+
 
 
 }

@@ -103,5 +103,15 @@ class MedicosController extends Controller
         return response()->json($medicos);
     }
 
+    public function contadorMedicos()
+    {
+        $cantidad = Medicos::count();
+
+        return response()->json([
+            'cantidad_medicos' => $cantidad
+        ]);
+    }   
+
+
 
 }
