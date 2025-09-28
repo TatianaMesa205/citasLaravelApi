@@ -68,6 +68,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('listarMisCitas', [CitasController::class, 'listarMisCitas']);
         Route::post('crearPacientes', [PacientesController::class, 'store']);
         Route::get('listarConsultorios', [ConsultoriosController::class, 'index']);
+        Route::get('especialidades/{id}', [EspecialidadesController::class, 'show']);
     });
 });
 
