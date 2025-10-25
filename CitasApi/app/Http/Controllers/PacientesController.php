@@ -128,7 +128,16 @@ class PacientesController extends Controller
         ]);
     }
 
+    public function buscarPorEmail($email)
+    {
+        $paciente = Pacientes::where('email', $email)->first();
 
+        if (!$paciente) {
+            return response()->json(['message' => 'Paciente no encontrado'], 404);
+        }
+
+        return response()->json(['paciente' => $paciente], 200);
+    }
 
 
 }

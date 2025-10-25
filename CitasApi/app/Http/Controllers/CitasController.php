@@ -6,6 +6,8 @@ use App\Models\Citas;
 use App\Models\Pacientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\CitaConfirmada;
+use Illuminate\Support\Facades\Mail;
 
 class CitasController extends Controller
 {
@@ -88,8 +90,8 @@ class CitasController extends Controller
         return response()->json($cita);
     }
 
-    public function update(Request $request, string $id){
-
+    public function update(Request $request, string $id)
+    {
         $cita = Citas::find($id);
 
         if (!$cita) {
@@ -97,7 +99,7 @@ class CitasController extends Controller
         }
 
         $validador = Validator::make($request->all(), [
-            'id_paciente' => 'exists:pacientes,id',
+            'id_pacientes' => 'exists:pacientes,id',
             'id_medicos' => 'exists:medicos,id',
             'id_consultorios' => 'exists:consultorios,id',
             'fecha' => 'date',
@@ -110,8 +112,32 @@ class CitasController extends Controller
             return response()->json($validador->errors(), 422);
         }
 
+        $estadoAnterior = $cita->estado;
         $cita->update($request->all());
-        return response()->json($cita);
+
+        // Recargar la cita con el paciente relacionado
+        $cita->load('paciente');
+
+        // Si el estado cambió a "confirmada"
+        if ($cita->estado === 'confirmada' && $estadoAnterior !== 'confirmada') {
+
+            $paciente = $cita->paciente;
+
+            if ($paciente && !empty($paciente->email)) {
+                try {
+                    Mail::to($paciente->email)->send(new CitaConfirmada($cita));
+                } catch (\Exception $e) {
+                    \Log::error('Error al enviar correo de confirmación: ' . $e->getMessage());
+                }
+            } else {
+                \Log::warning('El paciente asociado a la cita no tiene correo electrónico registrado.');
+            }
+        }
+
+        return response()->json([
+            'message' => 'Cita actualizada correctamente',
+            'cita' => $cita
+        ]);
     }
 
     public function destroy(string $id){

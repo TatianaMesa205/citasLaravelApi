@@ -51,10 +51,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::get('listarPacientes', [PacientesController::class, 'index']);
         Route::get('pacientes/{id}', [PacientesController::class, 'show']);
-        Route::put('actualizarPacientes/{id}', [PacientesController::class, 'update']);
         Route::delete('eliminarPacientes/{id}', [PacientesController::class, 'destroy']);
+        Route::put('actualizarPacientes/{id}', [PacientesController::class, 'update']);
 
         Route::get('contadorPacientes', [PacientesController::class, 'contadorPacientes']);
+
+        Route::get('listarAdmins', [AuthController::class, 'listarAdmins']);
+
 
     });
 
@@ -69,6 +72,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('crearPacientes', [PacientesController::class, 'store']);
         Route::get('listarConsultorios', [ConsultoriosController::class, 'index']);
         Route::get('especialidades/{id}', [EspecialidadesController::class, 'show']);
+        Route::put('editarPerfil', [AuthController::class, 'editarPerfil']);
+        Route::delete('eliminarCuenta', [AuthController::class, 'destroy']);
+        Route::get('pacientePorEmail/{email}', [PacientesController::class, 'buscarPorEmail']);
+
+
     });
 });
 

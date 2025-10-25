@@ -68,7 +68,7 @@ class AuthController extends Controller
         auth()->user()->tokens()->delete();
 
         return [
-            'message' => 'You have successfully logged out and the token was successfully deleted'
+            'message' => 'Tuviste un exitoso cierre de sesion'
         ];
     }
 
@@ -79,4 +79,90 @@ class AuthController extends Controller
             'user' => Auth::user(), // el usuario autenticado
         ], 200);
     }
+
+    public function editarPerfil(Request $request)
+    {
+        $user = auth()->user(); // Obtiene el usuario autenticado
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'sometimes|nullable|string|min:8|confirmed', // requiere password_confirmation
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Actualizar solo los campos enviados
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+
+        if ($request->has('password') && !empty($request->password)) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Perfil actualizado correctamente ✅',
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'updated_at' => $user->updated_at,
+            ],
+        ], 200);
+    }
+
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user) {
+            // Buscar si hay un paciente con el mismo email del usuario
+            $paciente = \App\Models\Pacientes::where('email', $user->email)->first();
+
+            if ($paciente) {
+                $paciente->delete();
+            }
+
+            // Eliminar la cuenta del usuario
+            $user->delete();
+
+            return response()->json([
+                "message" => "Tu cuenta fue eliminada correctamente. Esperamos verte de nuevo 💜"
+            ]);
+        }
+
+        return response()->json(["message" => "No se encontró el usuario."], 404);
+    }
+
+    public function listarAdmins()
+    {
+        // Consulta solo los usuarios con rol 'ADMIN'
+        $admins = User::where('role', 'ADMIN')
+            ->select('name', 'email') // Solo devuelve estos campos
+            ->get();
+
+        // Si no hay resultados, devuelve un mensaje
+        if ($admins->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron administradores registrados.'
+            ], 404);
+        }
+
+        // Si hay resultados, devuelve la lista
+        return response()->json([
+            'admins' => $admins
+        ], 200);
+    }
+
+
 }
