@@ -35,13 +35,12 @@ Content-Type: application/json
 
 ## 📌 Endpoints de Autenticación (AuthController)
 
-| Método | Ruta          | Descripción                              |
-| ------ | ------------- | ---------------------------------------- |
-| POST   | /api/register | Registrar un nuevo usuario (con rol)     |
-| POST   | /api/login    | Iniciar sesión y obtener token JWT       |
-| POST   | /api/logout   | Cerrar sesión e invalidar token          |
-| GET    | /api/me       | Obtener información del usuario logueado |
-
+| Método | Ruta                 | Descripción                              |
+| ------ | -------------------- | ---------------------------------------- |
+| POST   | /api/register        | Registrar un nuevo usuario (con rol)     |
+| POST   | /api/login           | Iniciar sesión y obtener token JWT       |
+| POST   | /api/logout          | Cerrar sesión e invalidar token          |
+| GET    | /api/me              | Obtener información del usuario logueado |
 
 
 ## 🌐 Endpoints principales
@@ -131,27 +130,23 @@ Content-Type: application/json
 
 ## 📊 Consultas adicionales
 
-- `GET /api/listarHotmail →` Pacientes con correo @hotmail
+### 📊 Consultas para admins
 
-- `GET /api/listar20Anios →` Médicos menores de 20 años
+- `GET /api/contadorMedicos →` Contador actualizado de los medicos.
 
-- `GET /api/listarConsultoriosSegundoP →` Consultorios en segundo piso
+- `GET /api/contadorPacientes →` Contador actualizado de los pacientes.
 
-- `GET /api/listarMenores →` Pacientes menores de edad
+- `GET /api/listarAdmins →` Listador de las cuentas asociadas al rol de admin.
 
-- `GET /api/listarCitasActivas →` Citas con estado Confirmada
+### 📊 Consultas para pacientes y admins
 
-- `GET /api/listarApellidosM →` Pacientes cuyo apellido empieza con "M"
+- `GET /api/editarPerfil →` Permite editar el perfil, ya sea de administrador o de paciente.
 
-- `GET /api/listarCitasGripa →` Citas con motivo que contenga "Gripa"
+- `GET /api/listarMisCitas →` Lista las citas del paciente.
 
-- `GET /api/listarMedicosCardiologia →` Médicos de especialidad "Cardiología"
+- `GET /api/eliminarCuenta →` Elimina la cuenta, sin importar el rol.
 
-- `GET /api/listarPacientesBogota →` Pacientes que viven en Bogotá
-
-- `GET /api/listarCitasPacientes30 →` Citas de pacientes mayores de 30 años
-
-
+- `GET /api/pacientePorEmail/{email} →` Lista el paciente asociado al email del inicio de sesion del usuario.
 ------
 ## ⚙️ Instalación y ejecución
 
@@ -162,13 +157,17 @@ Content-Type: application/json
 
 ### Instalar dependencias:
 
-- composer install
+- Composer install
 
 - Configurar variables de entorno (.env):
 
-- DB_DATABASE=citas <br>
-DB_USERNAME=root <br>
-DB_PASSWORD= <br>
+### Base de datos:
+
+- DB_DATABASE=citas
+
+- DB_USERNAME=root
+
+- DB_PASSWORD=
 
 
 ### Ejecutar migraciones:

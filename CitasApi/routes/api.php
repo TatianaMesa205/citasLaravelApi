@@ -75,8 +75,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::put('editarPerfil', [AuthController::class, 'editarPerfil']);
         Route::delete('eliminarCuenta', [AuthController::class, 'destroy']);
         Route::get('pacientePorEmail/{email}', [PacientesController::class, 'buscarPorEmail']);
-
-
     });
 });
 
